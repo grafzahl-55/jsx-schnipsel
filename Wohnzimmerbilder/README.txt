@@ -1,6 +1,12 @@
 README fuer die "Wohnzimmerbilder" Skripten.
 ---------------------------------------------
 
+Zur Problemstellung siehe diese FB-Beitraege:
+
+* https://www.facebook.com/groups/rickmaschke/posts/1240502013057190/
+* https://www.facebook.com/groups/rickmaschke/posts/1240950219679036/
+
+
 (0) Vorbereitung
 ----------------
 
