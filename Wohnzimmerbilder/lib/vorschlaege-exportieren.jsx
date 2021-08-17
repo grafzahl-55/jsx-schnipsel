@@ -109,7 +109,9 @@ function main(){
     for( var j=0; j<smartObj.layers.length; j++ ){
         smartObj.layers[j].visible=false;
     }
-    // Jetzt werden sie einzeln sichtbar gemacht
+    // Jetzt werden sie einzeln sichtbar gemacht und
+    // Ebenenkomposition wird erzeugt
+    // Vorschau wird exportiert
     for( var j=0; j<smartObj.layers.length; j++ ){
         var lyr = smartObj.layers[j];
         lyr.visible=true;

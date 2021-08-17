@@ -32,14 +32,13 @@ Als Vorbereitung wird die Aktion  'START-Workflow' aufgerufen, die folgende Schr
 
 1) Das Arbeitsdokument wird in das Profil sRGB umgeandelt.
 2) Es wird (als oberste Ebene) ein zunächst leeres SartObj. erzeugt (Name: BEISPIELBILDER).
-3) Das SmartObj. wird ins Profil AdobeRGB umgewandelt
-4) Das SmartObj. wird geoeffnet und es erscheint der Bildgroeßen-Dialog, wo man  
-   DPI und die gewuenschte Abmessung eintraegt.
+3) Das SmartObj. geoeffnet wird ins Profil AdobeRGB umgewandelt
+4) Es erscheint der Bildgroeßen-Dialog, wo man DPI und die gewuenschte Abmessung eintraegt.
 
 Hier haelt die Aktion an, und man kann nun anfangen, verschiedene Bilder aus der Bilddatenbank
 in das Smart Obj zu holen.
 
-Wichtig: Diese Bilder sollen alle auf oberster Ebene hübsch übereinanderliegen, also kein Gruppen
+Wichtig: Diese Bilder sollen alle auf oberster Ebene hübsch übereinanderliegen, also keine Gruppen
 oder ähnliche Faxen.
 Die Ebenennamen werden später als Name für die Ebenenkomposition und die Exportdateien verwendet.
 
@@ -60,7 +59,7 @@ Das macht sie leichter erweiterbar/anpassbar.
 
 Im geöffneten Arbeitsdokument das Skript 'vorschlaege-exportieren.jsx' laufen lassen.
 
-Dieses Skript ergeugt nun die Ebenenkompositionen und generiert auch die JPEGs. in denen
+Dieses Skript ergzeugt nun die Ebenenkompositionen und generiert auch die JPEGs. in denen
 jeweils eins der Vorschlagsbilder sichtbar ist. 
 
 Die JPEG Dateien landen automatisch in einem Unterverzeichnis, das im gleichen Verzeichnis
