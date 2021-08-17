@@ -1,87 +1,70 @@
-README fuer die "Wohnzimmerbilder" Skripten.
----------------------------------------------
+Mein naechster Versuch.
 
-Zur Problemstellung siehe diese FB-Beitraege:
+(0) Einleitung
+--------------
 
-* https://www.facebook.com/groups/rickmaschke/posts/1240502013057190/
-* https://www.facebook.com/groups/rickmaschke/posts/1240950219679036/
+Ich will mich nicht lange darüber auslassen, welche Problematik hier
+behandelt werden soll. Das ist alles in diesem Post auf FB zu finden:
+
+https://www.facebook.com/groups/rickmaschke/posts/1240950219679036/
+
+Insbesondere ist dort auch ein Video von Veit, wo der Workflow genau
+beschrieben ist.
+
+Mir geht's hier darum,  diesen Workflow zu vereinfachen bzw. weniger "klicklastig" zu machen.
+
+(1) Beschreibung der Versuchsumgebung
+-------------------------------------
+
+- Kunde-X.psd   : Kundenbild mit der leeren Wand; als PSD abgespeichert.
+- Bilddatenbank : Verzeichnis der Vorschlagsbilder (Alle im Format JPEG; Farbraum AdobeRGB)
+- lib           : Enthält Aktion und Skript
 
 
-(0) Vorbereitung
+(2) Vorbereitung
 ----------------
 
-Es muss ein "Arbeitsdokument" erstellt werden im Format TIFF oder PSD.
-Das Bild der Wohnzimmerwand muss darin als Hintergrundebene liegen.
-Farbraum und Abmessungen dieses Dokuments sind beliebig.
+Das Bild mit der leeren Wand, an der die Bilder virtuell "aufgehaengt" weden, wird im Folgenden
+das "Arbeitsdokument" genannt. Es muss im Format PSD oder TIFF vorliegen und das "Wandbild"
+als Hintergrundebene enthalten.
 
-(1) Dummy platzieren
--------------------
+Als Vorbereitung wird die Aktion  'START-Workflow' aufgerufen, die folgende Schritte unternimmt:
 
-Idee: Um die Größenverältnisse einigermassen realistisch hinzubekommen,
-wird im Arbeitsdokument eine "Dummy Ebene" (einfach ein graues Quadrat)
-platziert. Dieses kann an eine beliebige Stelle im Bild verschoben werden.
-Am Mittelpunkt dieses grauen Quadrats werden später die Vorschlagbilder platziert;
-d.h. die Mittelpunkte der Vorschaubilder werden in Schritt (2) automatisch
-an den Mittelpunkt des grauen Quadrats verschoben.
-Das graue Quadrat sollte (proportional) so skaliert werden, dass es so 
-wirkt, als hätte man eine 50x50 cm große graue Fläche "aufgehängt".
+1) Das Arbeitsdokument wird in das Profil sRGB umgeandelt.
+2) Es wird (als oberste Ebene) ein zunächst leeres SartObj. erzeugt (Name: BEISPIELBILDER).
+3) Das SmartObj. wird ins Profil AdobeRGB umgewandelt
+4) Das SmartObj. wird geoeffnet und es erscheint der Bildgroeßen-Dialog, wo man  
+   DPI und die gewuenschte Abmessung eintraegt.
 
-Dazu dient das Skript: 01_Dummy_platzieren.jsx 
+Hier haelt die Aktion an, und man kann nun anfangen, verschiedene Bilder aus der Bilddatenbank
+in das Smart Obj zu holen.
 
-(2) Vorschlagbilder laden
+Wichtig: Diese Bilder sollen alle auf oberster Ebene hübsch übereinanderliegen, also kein Gruppen
+oder ähnliche Faxen.
+Die Ebenennamen werden später als Name für die Ebenenkomposition und die Exportdateien verwendet.
+
+Bemerkung: Obwohl die Aktion selbst relativ trivial ist, hab' ich sie im Muster einer 
+"modularen Aktion" angelegt (Siehe Armin Staudt's Kanal zu diesem Thema). 
+Das macht sie leichter erweiterbar/anpassbar.
+
+(3) Haendische Anpassungen
 --------------------------
 
-Nun das Skript 02_Vorschlagbilder_laden.jsx ausführen.
+- Smart Obj. speichern und schließen.
+- Im Arbeitsdokument anpassen, verschieben, skalieren verzerren usw.
+- Arbeitsdokument speichern.
+- Das SmartObj. nicht umbenennen.
 
-Es öffnet sich ein Dateidialog, in dem man ein oder mehrere Bilddateien auswählen kann.
+(4) Export der Vorschlagsbilder
+-------------------------------
 
-Die ausgewählten Bilder werden als verknüpfte SmartObj. im Arbeitsdokument platziert.
+Im geöffneten Arbeitsdokument das Skript 'vorschlaege-exportieren.jsx' laufen lassen.
 
-(Sollen es eingebettete SmartObj werden: Im Skript 02_Vorschlagbilder_laden.jsx in der Funktion
-placeAndScale die Variable asLinkedSmartObj auf false setzen.)
+Dieses Skript ergeugt nun die Ebenenkompositionen und generiert auch die JPEGs. in denen
+jeweils eins der Vorschlagsbilder sichtbar ist. 
 
-Aus den platzierten Dokumenten wird die tatsächliche in der Datei hinterlegte Druckbreite ausgelesen.
-Die Ebene wird so verschoben, dass der Mittelpunkt genau über dem Mittelpunkt des grauen Dummy-Quadrats sitzt.
-Danach wird das Bild noch so skaliert, dass die tatsächliche Druckbreite im richtigen Verhältnis zu den
-fiktiven 50cm der grauen Dummy Ebene steht.
-(Beispiel: Hat das platzierte Objekt ein Druckbreite von 75cm, dann wird es proportional so skaliert, dass es
-1 1/2 mal so breit ist, wie das graue Quadrat; denn 75 cm ist das 1 1/2-fache von 50cm).
-
-Das Skript kann auch mehrmals hintereinander aufgerufen werden. 
-Alle platzierten Vorschlagbilder landen in der einschlägigen Ebenengruppe.
-
-Der Ebenenname entsteht aus dem Dateinamen der platzierten Dokumente.
-
-Natürlich kann man die platzierten Vorschlagbilder noch per Hand nachbessern,
-d.h. evtl. verschieben oder skalieren.
-
-Der (verknüpfte) Inhalt des Smartobj. wird in keinerlei Weise verändert,
-d.h. Abmessungen, DPI, Farbprofil entspricht 1:1 dem Original.
-
-(3) Vorschauen exportieren
---------------------------
-
-Am Schluss wird das Skript 03_Vorschauen_exportieren.jsx aufgerufen.
-Zunächst üffnet sich ein Dateidialog, wo man angibt, in welches Verzeichnis die Vorschaublider
-gespeichert werden sollen.
-
-In diesem Verzeichnis entstehen dann die Bilder der Wohnzimmerwand, wobei jeweils genau eine 
-der platzierten Ebenen sichtbar ist.
-
-Der Name der Vorschaudatei ergibt sich aus dem Muster: Vorschlag_{Name der Ebene}.jpg 
-(Siehe die Funktion exportPreview).
-
-ACHTUNG: Bei eventuellen Namesnkonflikten, wird ohne Nachfrage überschrieben!
-
-WICHTIG, damit alles Funktioniert: Die Namen der Ebenengruppe (BILDVORSCHLAEGE) und der 
-Dummy-Ebene (__DUMMY__) sollen nicht geändert werden. Alle platzierten Bildvorschläge 
-müssen innerhalb der Gruppe bleiben, damit der Export richtig funktioniert. 
+Die JPEG Dateien landen automatisch in einem Unterverzeichnis, das im gleichen Verzeichnis
+wie das Arbeitsdokument liegt. 
 
 
-(4) Sonstiges
--------------
-Das Verzeichnis hier enthält noch meine "Testumgebung" mit einem beispielhaften
-Arbeitsdokument (aus dem Internet -- mein Wohnzimmer ist weniger schrecklich),
-sowie einer Test "Bilddatenbank" (haha) mit Beispielbildern in verschiedenen 
-Druckabmessungen und -auflösungen.
 
