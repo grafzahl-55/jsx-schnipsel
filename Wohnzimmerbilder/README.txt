@@ -13,6 +13,14 @@ beschrieben ist.
 
 Mir geht's hier darum,  diesen Workflow zu vereinfachen bzw. weniger "klicklastig" zu machen.
 
+Änderungen gegenüber der vorigen Version
+-----------------------------------------
+- Aktion zum Speichern und Schließen des SmartObj. Packt gleich den 
+  Bildinhalt in die Zwischenablage und startet auch den Transformationsdialog
+- Aktion, um weitere Bilderstapel anzulegen
+- Exportskript kommt mit mehreren Bilderstapel zurecht
+
+
 (1) Beschreibung der Versuchsumgebung
 -------------------------------------
 
@@ -49,12 +57,33 @@ Das macht sie leichter erweiterbar/anpassbar.
 (3) Haendische Anpassungen
 --------------------------
 
-- Smart Obj. speichern und schließen.
+- Aktion "Stapel schliessen" ausführen
+    * Kopiert den aktuellen Inhalt (d.h. das zuletzt ausgesuchte Bild) in die Zwischenablage 
+    * Speichert und schliesst das Smartobj 
+    * Ermöglicht gleich eine Transformation. 
 - Im Arbeitsdokument anpassen, verschieben, skalieren verzerren usw.
 - Arbeitsdokument speichern.
 - Das SmartObj. nicht umbenennen.
 
-(4) Export der Vorschlagsbilder
+(4) Optional: Weitere Stapel erstellen
+--------------------------------------
+
+Falls weite Bilderstapel indas Arbeitsdokument integriert werden sollen, dann
+die Aktion "Naechster Stapel" ausfuehren (NICHT nochmal START-Workflow!!!). 
+Darin dann wieder Bilder platzierne und am Schluss "Stapel schliessen" ausführen 
+
+Das kann theoretisch beliebig oft wiederholt werden. Durch das exponentielle Wachstum
+der Anzahl der Kombinationsmöglichkeiten sind dem natürlich praktische Grenzen gesetzt.
+
+Was ist bei den Bilderstapeln zu beachten? 
+------------------------------------------
+- Sie muessen auf der obersten Dokumentebene liegen, also nicht in irgendwelchen Ebenengruppen 
+- Sie koennen umbenannt werden, muessen aber nicht. Beim Umbenennen ist zu beachten, dass der
+  neue Name den String "BEISPIELBILDER" enthält.
+- Es kann auch ein bestehender Bilderstapel dupliziert werden ("Smartobj. durch Kopie!!!!"),
+  dann kann man dessen Inhalt noch ändern, z.B. ander Bilder einfügen.
+
+(5) Export der Vorschlagsbilder
 -------------------------------
 
 Im geöffneten Arbeitsdokument das Skript 'vorschlaege-exportieren.jsx' laufen lassen.
@@ -65,5 +94,9 @@ jeweils eins der Vorschlagsbilder sichtbar ist.
 Die JPEG Dateien landen automatisch in einem Unterverzeichnis, das im gleichen Verzeichnis
 wie das Arbeitsdokument liegt. 
 
+Das Benennungsschema der Exportdateien folgt dem Muster:
 
+[Name der 1. Ebenenkomposition]+[Name der 2. Ebenenkomposition]+... 
+
+(In der Reihenfolge der Bilderstapel im Arbeitsdokument; von oben nach unten).
 
