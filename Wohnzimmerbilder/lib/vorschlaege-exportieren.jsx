@@ -105,6 +105,8 @@ function main(){
     // SmartObj oeffnen --- das macht den Inhalt des SmartObj zum aktiven Dokument
     editSmartObject();
     var smartObj = activeDocument;
+    // Vorhandene Ebenenkompositionen loeschen
+    smartObj.layerComps.removeAll();
     // Im ersten Schritt werden alle Ebenen im SmartObj unsichtbar gemacht
     for( var j=0; j<smartObj.layers.length; j++ ){
         smartObj.layers[j].visible=false;
