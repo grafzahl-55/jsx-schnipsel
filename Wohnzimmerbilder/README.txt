@@ -20,6 +20,8 @@ Mir geht's hier darum,  diesen Workflow zu vereinfachen bzw. weniger "klicklasti
 - Aktion, um weitere Bilderstapel anzulegen
 - Exportskript kommt mit mehreren Bilderstapel zurecht
 - Zusätzlich: Ein Skript, das nur die Ebenenkompositionen erstellt
+- Neues Benennungsschema des Exportverzeichnis und der Exportdateien
+  (Enthaelt die Druckgroessen und ein wahlfreies Anhängsel)
 
 
 (1) Beschreibung der Versuchsumgebung
@@ -88,6 +90,13 @@ Was ist bei den Bilderstapeln zu beachten?
 -------------------------------
 
 Im geöffneten Arbeitsdokument das Skript 'vorschlaege-exportieren.jsx' laufen lassen.
+
+Es oeffnet sich eine Texteingabe: Hier kann man einen wahlfreien Text angeben,
+der (durch _ getrennt) an den Namen des Exportverzeichnisses und der Vorschaubilder angehängt wird,
+z.B:  Buero-01 (dann wird "_Buero01" an den Namen gehängt)
+
+Dar "Abrechen"-Knopf bricht den Export ab. Das Feld kann auch leer gelassen werden - in diesem 
+Fall wird dieser Namensteil nicht benutzt.
 
 Dieses Skript ergzeugt nun die Ebenenkompositionen und generiert auch die JPEGs. in denen
 jeweils eins der Vorschlagsbilder sichtbar ist. 

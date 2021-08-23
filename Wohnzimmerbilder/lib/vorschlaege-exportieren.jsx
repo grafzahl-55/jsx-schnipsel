@@ -7,7 +7,12 @@ var DUMMY_LAYER_NAME = "BEISPIELBILDER";
 var JPEG_QUALITY = 10;
 // Bei mehreren Bilderstapeln: Trenner zwischen den einzelnen Ebenennamen
 // im Namen der Export-Datei
-var TRENNER="+";
+var TRENNER="_und_";
+// Praefix fuer den Export Ordner
+var FOLDER_PREFIX="Ansichtsdateien_";
+// ... und fuer die Einzelbilder
+var FILE_PREFIX="Ansichtsdatei_";
+
 
 
 // Erzeugt fuer dan aktuellen Dokumentzustand
@@ -43,7 +48,9 @@ function stapelFinden() {
 // Ordner fuer den Export bestimmen, bzw. anlegen
 // workFolder : Ordner, in dem das Arbeitsdokument liegt
 // docName    : Name des Arbeitsdocuments
-function createExportFolder(workFolder, docName) {
+// druckGroessen : Array der einelnen Druckgroessen
+// suffix : Per prompt eingegenes Suffix
+function createExportFolder(workFolder, docName, druckGroessen, suffix) {
     // Suffix vom Dokumentnamen entfernen
     var pos = docName.lastIndexOf('.');
     if (pos > 0) {
@@ -51,8 +58,13 @@ function createExportFolder(workFolder, docName) {
     } else {
         var docNameNoSuffix = docName;
     }
+    // Verzeichnisnamen zusammenbauen
+    // FOLDER_PREFIX (Druckgroessen) suffix
+    var folderName = FOLDER_PREFIX+druckGroessen.join(TRENNER)+suffix;
     // Name des Exportverzeichnis: [Dokument name (ohne Suffix)]-export
-    var exportFolder = new Folder(workFolder.fullName + "/" + docNameNoSuffix + "-export");
+    var exportFolder = new Folder(workFolder.fullName + "/" +folderName);
+    // Folder.create() kann auch aufgerufen werden, wenn der Folder schon existiert,
+    // Dann wird das einfach ignoriert.
     exportFolder.create();
     return exportFolder;
 }
@@ -61,14 +73,14 @@ function createExportFolder(workFolder, docName) {
 
 
 // Liste der Bilderstapel wird rekursiv abgearbeitet
-// Die gefundenen Ebenennamen sind in der Liste ebenenNamen aufgesammelt 
-function rekursiverExport(workDoc, exportFolder, stapelDocs, ebenenNamen) {
+// Die gefundenen Namensteile sind in der Liste ebenenNamen aufgesammelt 
+function rekursiverExport(workDoc, exportFolder, stapelDocs, druckGroessen, suffix,ebenenNamen) {
     if (stapelDocs.length == 0) {
-        // Fertig zum export
+        // Fertig zum export - die Liste der noch zu verarbeitenden Stapel ist leer.
         activeDocument = workDoc;
         // Dateiname entsteht durch zusammenfuegen der aufgesammelten Ebenennamen
-        // mit einem Trenner dazwischen
-        var exportFileName = ebenenNamen.join(TRENNER) + ".jpg";
+        // mit einem Trenner dazwischen und dem Suffix dahinter
+        var exportFileName = FILE_PREFIX+ebenenNamen.join(TRENNER) +suffix+ ".jpg";
         var exportFile = new File(exportFolder.fullName + "/" + exportFileName);
         var jpegOptions = new JPEGSaveOptions();
         jpegOptions.embedColorProfile = true;
@@ -80,19 +92,23 @@ function rekursiverExport(workDoc, exportFolder, stapelDocs, ebenenNamen) {
         // rekursiven Aufruf erledigt.
         var aktiverStapel = stapelDocs[0];
         var restDocs = stapelDocs.slice(1);
+        var aktiveGroesse = druckGroessen[0];
+        var restGroessen = druckGroessen.slice(0);
         // Ebenenkompositionen ...
         var comps = aktiverStapel.layerComps;
         for (var j = 0; j < comps.length; j++) {
-            // Alle Ebenenkompositionen diese STapels abarbeiten
+            // Alle Ebenenkompositionen diese Stapels abarbeiten
             activeDocument = aktiverStapel;
             var comp = comps[j];
             // Die j-te Ebenenkomposition abarbeiten
             comp.apply();
-            // Liste der Ebenennamen erweitern
+            // Liste der Namensteile erweitern
             var mehrEbenen = ebenenNamen.slice();  // Erstellt eine Kopie
-            mehrEbenen.push(comp.name); // ... und fuegt den aktivierten Ebenennamen (=Name der Ebenenkomposition an)
+            var namensteil=aktiveGroesse+"_"+comp.name;
+            mehrEbenen.push(namensteil); // ... und fuegt den aktivierten Ebenennamen (=Name der Ebenenkomposition an)
             activeDocument.save();
-            rekursiverExport(workDoc, exportFolder, restDocs, mehrEbenen);
+            // Rekursiver Aufruf fuer die Liste der noch zu bearbeitenden Stapel
+            rekursiverExport(workDoc, exportFolder, restDocs, restGroessen, suffix, mehrEbenen);
         }
 
     }
@@ -121,11 +137,6 @@ function stapelDokVorbereiten() {
 
 // Hauptprogramm
 function main() {
-    // Nur zur Sicherheit - das Arbeitsdok nochmal speichern,
-    // damit wir den Pfad wissen
-    activeDocument.save();
-    var workFolder = activeDocument.path;
-    var exportFolder = createExportFolder(workFolder, activeDocument.name);
     // Arbeitsdok.  merken 
     var workDoc = activeDocument;
     // Alle Bilderstapel finden
@@ -134,18 +145,41 @@ function main() {
         alert("Keine Bilderstapel gefunden");
         return;
     }
-    // Alle SmartObj oeffnen 
-    var stapelDomumente = [];
+    // Interaktive Abfrage des wahlfreien Namensteils
+    var suffix=prompt("Wahlfreier Text?\n(Wird an Datei- und Ordnername angehaengt)", "");
+    if( suffix==null ){
+        // Benutzer hat abgebrochen...
+        return;
+    } else if( suffix.length>0 ){
+        suffix="_"+suffix;
+    }
+
+    // Alle SmartObj oeffnen, Druckgroessen bestimmen und 
+    // Ebenenkompositionen erstellen
+    var stapelDomumente = []; // Liste der SmartObj. als geoeffnete Dokumente
+    var druckGroessen=[];     // Druckgroesse in cm
     for (var j = 0; j < stapelListe.length; j++) {
         workDoc.activeLayer = stapelListe[j];
         editSmartObject();
         var smartObj = activeDocument;
         stapelDomumente.push(smartObj);
         stapelDokVorbereiten();
+        var breite=Math.round(activeDocument.width.as("cm"));
+        var hoehe=Math.round(activeDocument.height.as("cm"));
+        druckGroessen.push(""+breite+"x"+hoehe);
         activeDocument = workDoc;
     }
+
+    // Nur zur Sicherheit - das Arbeitsdok nochmal speichern,
+    // damit wir den Pfad wissen
+    activeDocument.save();
+    var workFolder = activeDocument.path;
+    var exportFolder = createExportFolder(workFolder, activeDocument.name, druckGroessen, suffix);
+    
+    
+    
     // Rekursiver export
-    rekursiverExport(workDoc, exportFolder, stapelDomumente, []);
+    rekursiverExport(workDoc, exportFolder, stapelDomumente, druckGroessen, suffix,[]);
     // Alle SmartObj schliessen
     for (var j = 0; j < stapelDomumente.length; j++) {
         activeDocument = stapelDomumente[j];
