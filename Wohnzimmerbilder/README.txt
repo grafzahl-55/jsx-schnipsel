@@ -19,6 +19,7 @@ Mir geht's hier darum,  diesen Workflow zu vereinfachen bzw. weniger "klicklasti
   Bildinhalt in die Zwischenablage und startet auch den Transformationsdialog
 - Aktion, um weitere Bilderstapel anzulegen
 - Exportskript kommt mit mehreren Bilderstapel zurecht
+- Zusätzlich: Ein Skript, das nur die Ebenenkompositionen erstellt
 
 
 (1) Beschreibung der Versuchsumgebung
@@ -100,3 +101,9 @@ Das Benennungsschema der Exportdateien folgt dem Muster:
 
 (In der Reihenfolge der Bilderstapel im Arbeitsdokument; von oben nach unten).
 
+(6) Nur die Ebenenkompositionen erstellen 
+------------------------------------------
+
+Nachdem alle Bilderstapel erstellt wurden: Skript 'ebenenkompositionen_erstellen.jsx'
+laufen lassen. Das generiert lediglich die Ebenenkompositionen innerhalb der 
+Bilderstapel (Smartobjekte), erzeugt aber keine Export-Dateien. 
