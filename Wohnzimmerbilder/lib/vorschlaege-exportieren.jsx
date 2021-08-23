@@ -93,7 +93,7 @@ function rekursiverExport(workDoc, exportFolder, stapelDocs, druckGroessen, suff
         var aktiverStapel = stapelDocs[0];
         var restDocs = stapelDocs.slice(1);
         var aktiveGroesse = druckGroessen[0];
-        var restGroessen = druckGroessen.slice(0);
+        var restGroessen = druckGroessen.slice(1);
         // Ebenenkompositionen ...
         var comps = aktiverStapel.layerComps;
         for (var j = 0; j < comps.length; j++) {
