@@ -49,9 +49,11 @@ function stapelDokVorbereiten() {
     // Einzeln einblenden und die Ebenenkompositionen erstellen
     for (var j = 0; j < activeDocument.artLayers.length; j++) {
         var x = activeDocument.artLayers[j];
-        x.visible = true;
-        createLayerComposition(x.name);
-        x.visible = false;
+        if(x.name!="__DUMMY__"){
+            x.visible = true;
+            createLayerComposition(x.name);
+            x.visible = false;
+        }
     }
     // Alle Ebenen wieder sichtbar machen
     for (var j = 0; j < activeDocument.artLayers.length; j++) {

@@ -12,6 +12,8 @@ var TRENNER="_und_";
 var FOLDER_PREFIX="Ansichtsdateien_";
 // ... und fuer die Einzelbilder
 var FILE_PREFIX="Ansichtsdatei_";
+// ... und fuer die Druckdatendatei
+var WORK_PREFIX="Druckdaten_";
 
 
 
@@ -128,9 +130,15 @@ function stapelDokVorbereiten() {
     // Einzeln einblenden und die Ebenenkompositionen erstellen
     for (var j = 0; j < activeDocument.artLayers.length; j++) {
         var x = activeDocument.artLayers[j];
-        x.visible = true;
-        createLayerComposition(x.name);
-        x.visible = false;
+        if(x.name!="__DUMMY__"){
+            x.visible = true;
+            createLayerComposition(x.name);
+            x.visible = false;
+        }
+    }
+    // Alle wieder einblenden
+    for (var j = 0; j < activeDocument.artLayers.length; j++) {
+        activeDocument.artLayers[j].visible = true;
     }
 
 }
@@ -170,10 +178,17 @@ function main() {
         activeDocument = workDoc;
     }
 
-    // Nur zur Sicherheit - das Arbeitsdok nochmal speichern,
-    // damit wir den Pfad wissen
-    activeDocument.save();
+    // Arbeitsverzeichnis ist das das Verzeichnis des "Wohntimmerbilds"
     var workFolder = activeDocument.path;
+    // Jetzt speichern wir dieses Dokument als Druckdatendatei ab
+    var docFileName=WORK_PREFIX+druckGroessen.join(TRENNER)+suffix+".psd";
+    var docFile=new File(workFolder.fullName+"/"+docFileName);
+    var saveOpts=new PhotoshopSaveOptions();
+    saveOpts.alphaChannels=true;
+    saveOpts.embedColorProfile=true;
+    saveOpts.layers=true;
+    activeDocument.saveAs(docFile,saveOpts,false,Extension.LOWERCASE);
+    
     var exportFolder = createExportFolder(workFolder, activeDocument.name, druckGroessen, suffix);
     
     
