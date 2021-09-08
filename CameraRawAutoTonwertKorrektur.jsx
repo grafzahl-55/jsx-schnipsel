@@ -1,4 +1,4 @@
-// Ruft den Camera Raf Filter auf und wendet die
+// Ruft den Camera Raw Filter auf und wendet die
 // Automatische Tonwertkorrektur an
 //
 // Quelle:  https://community.adobe.com/t5/photoshop-ecosystem-discussions/is-there-any-jsx-to-execute-the-auto-tone-of-camera-raw/td-p/10167490
