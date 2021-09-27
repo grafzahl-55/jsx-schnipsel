@@ -7,13 +7,13 @@ var DUMMY_LAYER_NAME = "BEISPIELBILDER";
 var JPEG_QUALITY = 10;
 // Bei mehreren Bilderstapeln: Trenner zwischen den einzelnen Ebenennamen
 // im Namen der Export-Datei
-var TRENNER="_und_";
+var TRENNER = "_und_";
 // Praefix fuer den Export Ordner
-var FOLDER_PREFIX="Ansichtsdateien_";
+var FOLDER_PREFIX = "Ansichtsdateien_";
 // ... und fuer die Einzelbilder
-var FILE_PREFIX="Ansichtsdatei_";
+var FILE_PREFIX = "Ansichtsdatei_";
 // ... und fuer die Druckdatendatei
-var WORK_PREFIX="Druckdaten_";
+var WORK_PREFIX = "Druckdaten_";
 
 
 
@@ -62,9 +62,9 @@ function createExportFolder(workFolder, docName, druckGroessen, suffix) {
     }
     // Verzeichnisnamen zusammenbauen
     // FOLDER_PREFIX (Druckgroessen) suffix
-    var folderName = FOLDER_PREFIX+druckGroessen.join(TRENNER)+suffix;
+    var folderName = FOLDER_PREFIX + druckGroessen.join(TRENNER) + suffix;
     // Name des Exportverzeichnis: [Dokument name (ohne Suffix)]-export
-    var exportFolder = new Folder(workFolder.fullName + "/" +folderName);
+    var exportFolder = new Folder(workFolder.fullName + "/" + folderName);
     // Folder.create() kann auch aufgerufen werden, wenn der Folder schon existiert,
     // Dann wird das einfach ignoriert.
     exportFolder.create();
@@ -76,13 +76,13 @@ function createExportFolder(workFolder, docName, druckGroessen, suffix) {
 
 // Liste der Bilderstapel wird rekursiv abgearbeitet
 // Die gefundenen Namensteile sind in der Liste ebenenNamen aufgesammelt 
-function rekursiverExport(workDoc, exportFolder, stapelDocs, druckGroessen, suffix,ebenenNamen) {
+function rekursiverExport(workDoc, exportFolder, stapelDocs, druckGroessen, suffix, ebenenNamen) {
     if (stapelDocs.length == 0) {
         // Fertig zum export - die Liste der noch zu verarbeitenden Stapel ist leer.
         activeDocument = workDoc;
         // Dateiname entsteht durch zusammenfuegen der aufgesammelten Ebenennamen
         // mit einem Trenner dazwischen und dem Suffix dahinter
-        var exportFileName = FILE_PREFIX+ebenenNamen.join(TRENNER) +suffix+ ".jpg";
+        var exportFileName = FILE_PREFIX + ebenenNamen.join(TRENNER) + suffix + ".jpg";
         var exportFile = new File(exportFolder.fullName + "/" + exportFileName);
         var jpegOptions = new JPEGSaveOptions();
         jpegOptions.embedColorProfile = true;
@@ -105,8 +105,8 @@ function rekursiverExport(workDoc, exportFolder, stapelDocs, druckGroessen, suff
             // Die j-te Ebenenkomposition abarbeiten
             comp.apply();
             // Liste der Namensteile erweitern
-            var mehrEbenen = ebenenNamen.slice();  // Erstellt eine Kopie
-            var namensteil=aktiveGroesse+"_"+comp.name;
+            var mehrEbenen = ebenenNamen.slice(); // Erstellt eine Kopie
+            var namensteil = aktiveGroesse + "_" + comp.name;
             mehrEbenen.push(namensteil); // ... und fuegt den aktivierten Ebenennamen (=Name der Ebenenkomposition an)
             activeDocument.save();
             // Rekursiver Aufruf fuer die Liste der noch zu bearbeitenden Stapel
@@ -130,7 +130,7 @@ function stapelDokVorbereiten() {
     // Einzeln einblenden und die Ebenenkompositionen erstellen
     for (var j = 0; j < activeDocument.artLayers.length; j++) {
         var x = activeDocument.artLayers[j];
-        if(x.name!="__DUMMY__"){
+        if (x.name != "__DUMMY__") {
             x.visible = true;
             createLayerComposition(x.name);
             x.visible = false;
@@ -154,47 +154,51 @@ function main() {
         return;
     }
     // Interaktive Abfrage des wahlfreien Namensteils
-    var suffix=prompt("Wahlfreier Text?\n(Wird an Datei- und Ordnername angehaengt)", "");
-    if( suffix==null ){
+    var suffix = prompt("Wahlfreier Text?\n(Wird an Datei- und Ordnername angehaengt)", "");
+    if (suffix == null) {
         // Benutzer hat abgebrochen...
         return;
-    } else if( suffix.length>0 ){
-        suffix="_"+suffix;
+    } else if (suffix.length > 0) {
+        suffix = "_" + suffix;
     }
 
     // Alle SmartObj oeffnen, Druckgroessen bestimmen und 
     // Ebenenkompositionen erstellen
     var stapelDomumente = []; // Liste der SmartObj. als geoeffnete Dokumente
-    var druckGroessen=[];     // Druckgroesse in cm
+    var druckGroessen = []; // Druckgroesse in cm
     for (var j = 0; j < stapelListe.length; j++) {
         workDoc.activeLayer = stapelListe[j];
         editSmartObject();
         var smartObj = activeDocument;
         stapelDomumente.push(smartObj);
         stapelDokVorbereiten();
-        var breite=Math.round(activeDocument.width.as("cm"));
-        var hoehe=Math.round(activeDocument.height.as("cm"));
-        druckGroessen.push(""+breite+"x"+hoehe);
+        var breite = Math.round(activeDocument.width.as("cm"));
+        var hoehe = Math.round(activeDocument.height.as("cm"));
+        druckGroessen.push("" + breite + "x" + hoehe);
         activeDocument = workDoc;
     }
 
     // Arbeitsverzeichnis ist das das Verzeichnis des "Wohntimmerbilds"
     var workFolder = activeDocument.path;
     // Jetzt speichern wir dieses Dokument als Druckdatendatei ab
-    var docFileName=WORK_PREFIX+druckGroessen.join(TRENNER)+suffix+".psd";
-    var docFile=new File(workFolder.fullName+"/"+docFileName);
-    var saveOpts=new PhotoshopSaveOptions();
-    saveOpts.alphaChannels=true;
-    saveOpts.embedColorProfile=true;
-    saveOpts.layers=true;
-    activeDocument.saveAs(docFile,saveOpts,false,Extension.LOWERCASE);
-    
+    var docFileName = WORK_PREFIX + druckGroessen.join(TRENNER) + suffix + ".psd";
+    var docFile = new File(workFolder.fullName + "/" + docFileName);
+    /* Alt: Als PSD speichern 
+    var saveOpts = new PhotoshopSaveOptions();
+    saveOpts.alphaChannels = true;
+    saveOpts.embedColorProfile = true;
+    saveOpts.layers = true;
+    activeDocument.saveAs(docFile, saveOpts, false, Extension.LOWERCASE);
+    */
+    // Neu: Als PSB
+    saveAsPsb(docFile);
+
     var exportFolder = createExportFolder(workFolder, activeDocument.name, druckGroessen, suffix);
-    
-    
-    
+
+
+
     // Rekursiver export
-    rekursiverExport(workDoc, exportFolder, stapelDomumente, druckGroessen, suffix,[]);
+    rekursiverExport(workDoc, exportFolder, stapelDomumente, druckGroessen, suffix, []);
     // Alle SmartObj schliessen
     for (var j = 0; j < stapelDomumente.length; j++) {
         activeDocument = stapelDomumente[j];
@@ -205,7 +209,52 @@ function main() {
     alert("Export erledigt. \nSiehe " + exportFolder.fsName);
 }
 
+function saveAsPsb(docFile) {
+    var idsave = charIDToTypeID("save");
+    var desc13 = new ActionDescriptor();
+    var idAs = charIDToTypeID("As  ");
+    var desc14 = new ActionDescriptor();
+    var idmaximizeCompatibility = stringIDToTypeID("maximizeCompatibility");
+    desc14.putBoolean(idmaximizeCompatibility, false);
+    var idPhteight = charIDToTypeID("Pht8");
+    desc13.putObject(idAs, idPhteight, desc14);
+    var idIn = charIDToTypeID("In  ");
+    desc13.putPath(idIn, docFile);
+    var idDocI = charIDToTypeID("DocI");
+    desc13.putInteger(idDocI, 525);
+    var idCpy = charIDToTypeID("Cpy ");
+    desc13.putBoolean(idCpy, false);
+    var idLwCs = charIDToTypeID("LwCs");
+    desc13.putBoolean(idLwCs, true);
+    var idsaveStage = stringIDToTypeID("saveStage");
+    var idsaveStageType = stringIDToTypeID("saveStageType");
+    var idsaveBegin = stringIDToTypeID("saveBegin");
+    desc13.putEnumerated(idsaveStage, idsaveStageType, idsaveBegin);
+    executeAction(idsave, desc13, DialogModes.NO);
 
+    // =======================================================
+    var idsave = charIDToTypeID( "save" );
+    var desc15 = new ActionDescriptor();
+    var idAs = charIDToTypeID( "As  " );
+        var desc16 = new ActionDescriptor();
+        var idmaximizeCompatibility = stringIDToTypeID( "maximizeCompatibility" );
+        desc16.putBoolean( idmaximizeCompatibility, false );
+    var idPhteight = charIDToTypeID( "Pht8" );
+    desc15.putObject( idAs, idPhteight, desc16 );
+    var idIn = charIDToTypeID( "In  " );
+    desc15.putPath( idIn,docFile );
+    var idDocI = charIDToTypeID( "DocI" );
+    desc15.putInteger( idDocI, 525 );
+    var idCpy = charIDToTypeID( "Cpy " );
+    desc15.putBoolean( idCpy, false );
+    var idLwCs = charIDToTypeID( "LwCs" );
+    desc15.putBoolean( idLwCs, true );
+    var idsaveStage = stringIDToTypeID( "saveStage" );
+    var idsaveStageType = stringIDToTypeID( "saveStageType" );
+    var idsaveSucceeded = stringIDToTypeID( "saveSucceeded" );
+    desc15.putEnumerated( idsaveStage, idsaveStageType, idsaveSucceeded );
+    executeAction( idsave, desc15, DialogModes.NO );
+}
 
 
 activeDocument.suspendHistory('Vorschlaege exportieren', 'main()');
