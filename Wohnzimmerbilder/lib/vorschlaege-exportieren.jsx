@@ -145,6 +145,8 @@ function stapelDokVorbereiten() {
 
 // Hauptprogramm
 function main() {
+    var rUnits = preferences.rulerUnits;
+    preferences.rulerUnits = Units.PIXELS;
     // Arbeitsdok.  merken 
     var workDoc = activeDocument;
     var workDocWidth = workDoc.width.as("px");
@@ -225,6 +227,7 @@ function main() {
     activeDocument = workDoc;
     alert("Export erledigt und Deruckdaten wurden gespeichert. \nSiehe " + exportFolder.fsName);
     workDoc.close(SaveOptions.DONOTSAVECHANGES);
+    preferences.rulerUnits = rUnits;
 }
 
 function saveAsPsb(docFile) {
