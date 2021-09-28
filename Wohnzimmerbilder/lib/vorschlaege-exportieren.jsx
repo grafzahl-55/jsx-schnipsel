@@ -147,6 +147,7 @@ function stapelDokVorbereiten() {
 function main() {
     // Arbeitsdok.  merken 
     var workDoc = activeDocument;
+    var workDocWidth = workDoc.width.as("px");
     // Alle Bilderstapel finden
     var stapelListe = stapelFinden();
     if (stapelListe.length === 0) {
@@ -181,7 +182,7 @@ function main() {
     // Arbeitsverzeichnis ist das das Verzeichnis des "Wohntimmerbilds"
     var workFolder = activeDocument.path;
     // Jetzt speichern wir dieses Dokument als Druckdatendatei ab
-    var docFileName = WORK_PREFIX + druckGroessen.join(TRENNER) + suffix + ".psd";
+    var docFileName = WORK_PREFIX + druckGroessen.join(TRENNER) + suffix + ".psb";
     var docFile = new File(workFolder.fullName + "/" + docFileName);
     /* Alt: Als PSD speichern 
     var saveOpts = new PhotoshopSaveOptions();
@@ -192,9 +193,25 @@ function main() {
     */
     // Neu: Als PSB
     saveAsPsb(docFile);
-
+    //alert("SAVE!!!");
     var exportFolder = createExportFolder(workFolder, activeDocument.name, druckGroessen, suffix);
 
+    // Die Auflösung der Stapeldokumente verringern
+   
+    for (var j = 0; j < stapelDomumente.length; j++) {
+        activeDocument = stapelDomumente[j];
+        // Aktuelle Pixelbreite
+        var w=activeDocument.width.as("px");
+        var scaleFactor=Math.round(w/workDocWidth);
+        if(scaleFactor>1){
+            activeDocument.resizeImage(activeDocument.width/scaleFactor,activeDocument.height/scaleFactor,
+                    activeDocument.resolution/scaleFactor,ResampleMethod.AUTOMATIC);
+            activeDocument.save();
+        }
+        
+    }
+    activeDocument=workDoc;
+    
 
 
     // Rekursiver export
@@ -206,7 +223,8 @@ function main() {
     }
     // Arbeitsdokument wieder aktivieren
     activeDocument = workDoc;
-    alert("Export erledigt. \nSiehe " + exportFolder.fsName);
+    alert("Export erledigt und Deruckdaten wurden gespeichert. \nSiehe " + exportFolder.fsName);
+    workDoc.close(SaveOptions.DONOTSAVECHANGES);
 }
 
 function saveAsPsb(docFile) {
@@ -231,7 +249,7 @@ function saveAsPsb(docFile) {
     var idsaveBegin = stringIDToTypeID("saveBegin");
     desc13.putEnumerated(idsaveStage, idsaveStageType, idsaveBegin);
     executeAction(idsave, desc13, DialogModes.NO);
-
+    
     // =======================================================
     var idsave = charIDToTypeID( "save" );
     var desc15 = new ActionDescriptor();
@@ -254,6 +272,7 @@ function saveAsPsb(docFile) {
     var idsaveSucceeded = stringIDToTypeID( "saveSucceeded" );
     desc15.putEnumerated( idsaveStage, idsaveStageType, idsaveSucceeded );
     executeAction( idsave, desc15, DialogModes.NO );
+    
 }
 
 
