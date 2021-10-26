@@ -91,6 +91,30 @@ function getExtension(file){
 }
 
 /**
+ * Test ob eine Datei eine zulaessige
+ * (d.h. in EXTENSIONS enthaltene) Dateiendung besitzt
+ *
+ * INPUT
+ * file das File Objekt
+ *
+ * OUTPUT
+ * true/false
+ */
+function hasAdmissibleExtension(file){
+    if(!file) return false;
+    var ext=getExtension(file);
+    if( ext==0 || ext.length==0){
+        return false;
+    }
+    for(var j=0; j<EXTENSIONS.length; j++){
+        if( ext==EXTENSIONS[j] ){
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Eine einzelne Datei verarbeiten
  *
  * Input:
@@ -99,7 +123,7 @@ function getExtension(file){
  */
 function processFile(file,log){
     // Datei nur verarbeiten, wen die Erweiterung passt
-    if( EXTENSIONS.indexOf(getExtension(file)) >=0 ){
+    if( hasAdmissibleExtension(file) ){
         try{
             var b = isGrayscale(file);
             if(b){
@@ -126,7 +150,7 @@ function processFolder(fld,log){
     for( var j=0; j<files.length; j++){
         var file=files[j];
         if( file instanceof File ){
-            // DAs ist eine einzelne Datei
+            // Das ist eine einzelne Datei
             processFile(file,log);
         } else if( file instanceof Folder ){
             // Das iss ein Unterverzeichnis, deswegen rift sich
