@@ -62,11 +62,11 @@ function isGrayscale(docFile,log){
 
     // Nur ein Kanal? Dann ist es Grau
     if(doc.componentChannels.length==1){
-        return true;
+        return GRAY;
     }
     if(doc.componentChannels.length==4){
         // Bei CMYK--- keine AHnung
-        return false;
+        return PROBABLY_GRAY;
     }
 
     // Auf Hintergund reduzieren
