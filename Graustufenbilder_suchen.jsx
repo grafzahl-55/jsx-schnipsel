@@ -24,26 +24,50 @@
 //
 // Wie wird festgestellt, ob ein Dokument rein schwarz ist?
 // Die Histogrammdaten des Dokuments werden ermittelt. Dies ist ein Array mit 256 Elementen,
-// an der k-ten Position steht die ANzahl aller Picel mit einer Helligkeit von k. 
+// an der k-ten Position steht die Anzahl aller Picel mit einer Helligkeit von k. 
 // Ein Bild ist also dann rein schwarz, wenn ausschließlich an Position 0 ein Wert !=0 steht
-// und alle weiteren Histogrammwerte =0 sind.  
+// und alle weiteren Histogrammwerte =0 sind.
+// Für die Praxis ist das zu "streng", deswegen wird eine gewisse Toleranz zugelassen  
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Liste der Dateindungen die als Bilddatei interpretiert wird. 
 const EXTENSIONS=['psd','jpg','jpeg','psb','tif','tiff','png'];
 
+// Maximale Abweichung, die beim Differenzvergleich als "sicher grau" toleriert wird. 
+const DIFFERENCE_1 = 2;
+// Maximale Abweichung, die einen "Verdachtsfall" kennzeichnet
+const DIFFERENCE_2 = 5;
+// Maximaler Anteil der "Abweichler" 
+const MAX_QUOT = 0.001;
+// Debug ausgabe?
+const DEBUG=false;
+
 /**
 * Prüft ob ein Dokument ein Graustufenbild ist
 * Input:
 * docFile : Ein File-Objekt
 * 
-* Output : true oder false
+* Output : 
+*    0 : Bild ist mit Sicherheit grau
+*    1 : Bild ist "tolerabel" grau -->
 */
-function isGrayscale(docFile){
+const GRAY=0;
+const PROBABLY_GRAY=1;
+const NOT_GRAY=2;
+function isGrayscale(docFile,log){
     // Dokument öffnen
     var doc=app.open(docFile);
     activeDocument=doc;
+
+    // Nur ein Kanal? Dann ist es Grau
+    if(doc.componentChannels.length==1){
+        return true;
+    }
+    if(doc.componentChannels.length==4){
+        // Bei CMYK--- keine AHnung
+        return false;
+    }
 
     // Auf Hintergund reduzieren
     doc.flatten();
@@ -57,19 +81,33 @@ function isGrayscale(docFile){
     var hist=doc.histogram;
     // Ist zu Anfang "true". Wird "false" sobald wir im Histogramm einen
     // Wert >0 an einer Position >0 finden
-    var isGray=true;
+    var maxDiff=0;
+    var blackPixels=hist[0];
+    var nonBlackPixels=0;
     for(var j=1; j<hist.length; j++){
         if(hist[j]>0){
-            // Da! An Stelle j haben wir einen Histogrammeintrag
-            // !=0 und damit ist die SUche beendet. 
-            // Kein Graustufenbild.
-            isGray=false;
-            break;
+            maxDiff=j;
+            nonBlackPixels+=hist[j]; 
         }
     }
     // Dokument schließen - nicht speichern
     doc.close(SaveOptions.DONOTSAVECHANGES);
-    return isGray;
+    // Auswertung
+    var quot=nonBlackPixels/(nonBlackPixels+blackPixels);
+    if(DEBUG){
+        log.write("----------------------------------------\n");
+        log.write(docFile.fsName+"\n");
+        log.write("maxDiff="+maxDiff+" -- "+"quot="+quot+"\n");
+        log.write("----------------------------------------\n");
+    }
+    if( quot<=MAX_QUOT ){
+        if( maxDiff<=DIFFERENCE_1 ){
+            return GRAY;
+        }else if( maxDiff<=DIFFERENCE_2){
+            return PROBABLY_GRAY;
+        }
+    }
+    return NOT_GRAY;
 }
 
 /**
@@ -125,10 +163,12 @@ function processFile(file,log){
     // Datei nur verarbeiten, wen die Erweiterung passt
     if( hasAdmissibleExtension(file) ){
         try{
-            var b = isGrayscale(file);
-            if(b){
+            var b = isGrayscale(file,log);
+            if(b==GRAY){
                 // Gefundene Graustufenbilder in die Prtokolldatei schreiben
                 log.write(file.fsName+"\n");
+            } else if(b==PROBABLY_GRAY){
+                log.write(file.fsName+" (VERDACHTSFALL)\n");
             }
         }catch(e){
             // Fehler ebenfalls protokollieren
