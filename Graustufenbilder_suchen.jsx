@@ -49,65 +49,100 @@ const DEBUG=false;
 * docFile : Ein File-Objekt
 * 
 * Output : 
-*    0 : Bild ist mit Sicherheit grau
+*    0 : Bild ist mit Sicherheit grau (und ein RGB-Bild mit 3 Kanaelen)
 *    1 : Bild ist "tolerabel" grau -->
+*    2 : Bild ist mit Sicherheit bunt
+*    3 : Bild hat ein Gray Gamma Farbrofil oder nur einen Kanal.
 */
 const GRAY=0;
 const PROBABLY_GRAY=1;
 const NOT_GRAY=2;
+const GRAYSCALE_IMAGE=3;
 function isGrayscale(docFile,log){
-    // Dokument öffnen
     var doc=app.open(docFile);
-    activeDocument=doc;
+    try{
+        // Dokument öffnen
+        activeDocument=doc;
 
-    // Nur ein Kanal? Dann ist es Grau
-    if(doc.componentChannels.length==1){
-        return GRAY;
-    }
-    if(doc.componentChannels.length==4){
-        // Bei CMYK--- keine AHnung
-        return PROBABLY_GRAY;
-    }
-
-    // Auf Hintergund reduzieren
-    doc.flatten();
-    // Hintergrund duplizieren und entsaettigen
-    var dup=doc.activeLayer.duplicate();
-    dup.desaturate();
-    // Auf Modus Differenz setzen
-    dup.blendMode=BlendMode.DIFFERENCE;
-
-    // Histogramm auslesen
-    var hist=doc.histogram;
-    // Ist zu Anfang "true". Wird "false" sobald wir im Histogramm einen
-    // Wert >0 an einer Position >0 finden
-    var maxDiff=0;
-    var blackPixels=hist[0];
-    var nonBlackPixels=0;
-    for(var j=1; j<hist.length; j++){
-        if(hist[j]>0){
-            maxDiff=j;
-            nonBlackPixels+=hist[j]; 
+        // Farbprofile Gray Gamma...
+        try{
+            if( (doc.colorProfileName!=null) && (doc.colorProfileName.match(/Gray Gamma/))){
+                if( DEBUG ){
+                    log.write("----------------------------------------\n");
+                    log.write("|"+ docFile.fsName+" ==> Farbprofil:"+doc.colorProfileName+"\n");
+                    log.write("----------------------------------------\n");    
+                }
+                return GRAYSCALE_IMAGE;
+            }
+        } catch(e) {
+            // Wenn ein Dok. kein Farbprofil hat, gib doc.colorProfileName nicht etwa null
+            // oder einen Leerstring zurück, sondern es gibt einen FEHLER.
+            // Was hat sich Adobe dabei gedacht????
+            // Also: Wenn es hier einen Fehler gibt, ignoroeren wir den und
+            // gehen zum nächsten Test über...
         }
-    }
-    // Dokument schließen - nicht speichern
-    doc.close(SaveOptions.DONOTSAVECHANGES);
-    // Auswertung
-    var quot=nonBlackPixels/(nonBlackPixels+blackPixels);
-    if(DEBUG){
-        log.write("----------------------------------------\n");
-        log.write(docFile.fsName+"\n");
-        log.write("maxDiff="+maxDiff+" -- "+"quot="+quot+"\n");
-        log.write("----------------------------------------\n");
-    }
-    if( quot<=MAX_QUOT ){
-        if( maxDiff<=DIFFERENCE_1 ){
-            return GRAY;
-        }else if( maxDiff<=DIFFERENCE_2){
+        // Nur ein Kanal? Dann ist es Grau
+        if(doc.componentChannels.length==1){
+            if( DEBUG ){
+                log.write("----------------------------------------\n");
+                log.write("|"+ docFile.fsName+" ==> GRAYSCALE IMAGE (Nur 1 Kanal)\n");
+                log.write("----------------------------------------\n");    
+            }
+            return GRAYSCALE_IMAGE;
+        }
+        
+        if(doc.componentChannels.length==4){
+            if( DEBUG ){
+                log.write("----------------------------------------\n");
+                log.write("|"+ docFile.fsName+" ==> CMYK??? (4 Kanaele)\n");
+                log.write("----------------------------------------\n");    
+            }
+            // Bei CMYK--- keine AHnung
             return PROBABLY_GRAY;
         }
+
+        // Auf Hintergund reduzieren
+        doc.flatten();
+        // Hintergrund duplizieren und entsaettigen
+        var dup=doc.activeLayer.duplicate();
+        dup.desaturate();
+        // Auf Modus Differenz setzen
+        dup.blendMode=BlendMode.DIFFERENCE;
+
+        // Histogramm auslesen
+        var hist=doc.histogram;
+        // Ist zu Anfang "true". Wird "false" sobald wir im Histogramm einen
+        // Wert >0 an einer Position >0 finden
+        var maxDiff=0;
+        var blackPixels=hist[0];
+        var nonBlackPixels=0;
+        for(var j=1; j<hist.length; j++){
+            if(hist[j]>0){
+                maxDiff=j;
+                nonBlackPixels+=hist[j]; 
+            }
+        }
+        
+        // Auswertung
+        var quot=nonBlackPixels/(nonBlackPixels+blackPixels);
+        if(DEBUG){
+            log.write("----------------------------------------\n");
+            log.write("|"+ docFile.fsName+"\n");
+            log.write("|"+ "maxDiff="+maxDiff+" -- "+"quot="+quot+"\n");
+            log.write("----------------------------------------\n");
+        }
+        if( quot<=MAX_QUOT ){
+            if( maxDiff<=DIFFERENCE_1 ){
+                return GRAY;
+            }else if( maxDiff<=DIFFERENCE_2){
+                return PROBABLY_GRAY;
+            }
+        }
+        return NOT_GRAY;
+    } finally {
+        // Dokument schließen - nicht speichern
+        doc.close(SaveOptions.DONOTSAVECHANGES);
     }
-    return NOT_GRAY;
 }
 
 /**
