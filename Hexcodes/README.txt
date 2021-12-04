@@ -99,3 +99,26 @@ Man kann aber die Aktion um weitere Schritte ergänzen, so dass es z.B.
 auch möglich ist, alle Ebenen zu reduzieren und das als JPEG oder PNG
 zu speichern.... Kommt drauf an, was man am Schluss haben möchte.
 
++===================+
+| ALTERNATIVLOESUNG |
++===================+
+
+Hier braucht man die HEXCODE-Ebene nicht mehr, d.h. am Einfachsten ist es, diese
+einfach auszublenden und das Template neu abzuspeichern.
+
+Dann die CSV-Datei vorbereiten, wie obne beschrieben.
+
+Und schließlich, in PS: Datei->Skripten->Durchsuchen...
+Hier die Datei batch_hexcode2ff.jsx von hier aussuchen.
+
+Es erscheinen 3 File-Dialoge:
+
+1) Zum Landen der Template-Datei 
+2) Zum Laden der CSV-Datei und schließlich
+3) Zur ANgabe des Ausgabeverzeichnisses
+
+Fertig. Den Rest erledigt das Skript.
+
+Hier werden die einzelnen Dateien als PNG abgelegt. Für ein anderes Format muss die 
+Skriptdatei entsprechend angepasst werden.
+
