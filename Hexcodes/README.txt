@@ -6,7 +6,7 @@ Ausgangspunkt ist die Vorlagendatei Template.psd . Wesentlicher Bestandteil
 dieser Vorlage sind zwei Textebenen:
 
 - FARBNAME -> Nimmt später den Namen der Farbe auf
-- HEXCOSE  -> Nimmt später den zugehörigen Hex-Code auf
+- HEXCODE  -> Nimmt später den zugehörigen Hex-Code auf
 
 sowie eine Farbfläche
 
@@ -14,7 +14,7 @@ sowie eine Farbfläche
 
 Die Vorlage kann nach Belieben angepasst werden. WICHTIG ist lediglich
 dass die drei oben genannten Elemente vorhanden sein müssen und genau die 
-o.g. Ebenennamen tragen. Selbstverständlich düerfen keine der evtl.
+o.g. Ebenennamen tragen. Selbstverständlich dürfen keine der evtl.
 vorhandenen zusätzlichen Ebenen einen dieser reservierten Ebenennamen haben.
 
 Schritt 1: Die Excel-Tabelle
@@ -113,7 +113,7 @@ Hier die Datei batch_hexcode2ff.jsx von hier aussuchen.
 
 Es erscheinen 3 File-Dialoge:
 
-1) Zum Landen der Template-Datei 
+1) Zum Laden der Template-Datei 
 2) Zum Laden der CSV-Datei und schließlich
 3) Zur ANgabe des Ausgabeverzeichnisses
 
