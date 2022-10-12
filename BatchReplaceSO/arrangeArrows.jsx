@@ -14,6 +14,9 @@ const FDELTA=0;
 // Fester Abstand in Pixeln
 const FIX_OFFSET=30;
 
+// Abstand Line zur Schrift
+const LABEL_OFFSET=15;
+
 // Falls Pfeile vorhanden, muss man die Linien etwas kürzer halten.
 // ungefähr um die Breite eines Pfeils
 const ARROW_SIZE=16;
@@ -108,6 +111,8 @@ function processDoc(doc) {
     // Auf mittlere Position bringen
     b = lblTop.bounds;
     var delta = (b0[0] + b0[2]) / 2 - (b[0] + b[2]) / 2;
+    var bL = lineTop.bounds;
+    deltaY =   bL[1] - LABEL_OFFSET -b[3];
     lblTop.translate(delta, deltaY);
 
     // Pfeil nach links
@@ -147,6 +152,8 @@ function processDoc(doc) {
     // Schrift links
     // Auf mittlere Position bringen
     b = lblLeft.bounds;
+    bL = lineLeft.bounds;
+    deltaX=bL[0]- LABEL_OFFSET -b[2]; 
     var delta = (b0[1] + b0[3]) / 2 - (b[1] + b[3]) / 2;
     lblLeft.translate(deltaX, delta);
 
