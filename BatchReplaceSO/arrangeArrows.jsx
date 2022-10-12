@@ -1,14 +1,22 @@
 // Namen der beteiligten Ebenen
 const GRAPHICS = "tattoomotiv";
-const ARROW_TOP = "masslinie_breite";
-const ARROW_LEFT = "masslinie_hoehe";
+const LINE_TOP = "masslinie_breite";
+const LINE_LEFT = "masslinie_hoehe";
 const LABEL_TOP = "mass_breite";
 const LABEL_LEFT = "mass_hoehe";
+const ARROW_LEFT = "Pfeil_links";
+const ARROW_RIGHT = "Pfeil_rechts";
+const ARROW_UP = "Pfeil_oben";
+const ARROW_DOWN = "Pfeil_unten";
 
 // Abstand der Pfeile in Prozent der Breite/Höhe
 const FDELTA=0;
-const FIX_OFFSET=15;
+// Fester Abstand in Pixeln
+const FIX_OFFSET=30;
 
+// Falls Pfeile vorhanden, muss man die Linien etwas kürzer halten.
+// ungefähr um die Breite eines Pfeils
+const ARROW_SIZE=16;
 
 
 // JPEG-Qualität für die Ausgabe
@@ -44,10 +52,13 @@ function findLayerByName(sName, parent) {
     return null;
 }
 
-// Ebene finden und Fehlermeldung, wenn nicht gefunden
-function findLayerInDoc(sName, doc) {
+// Ebene nach Namen finden 
+// Falls Ebene nicht gefunden wird:
+//    Falls optional = true : Liefert einfach null zurück
+//    Falls optional = false : Gibt Fehlermeldung
+function findLayerInDoc(sName, doc, optional) {
     const layer = findLayerByName(sName, doc);
-    if (!layer) {
+    if (!optional && !layer) {
         alert("Ebene '" + sName + "' nicht gefunden in Dokument '" + doc.name + "'");
         throw ("Fehler bei der Bearbeitung");
     }
@@ -59,10 +70,16 @@ function processDoc(doc) {
     if (!doc) return;
     // Beteiligte Ebenen suchen
     const gr = findLayerInDoc(GRAPHICS, doc);
-    const arTop = findLayerInDoc(ARROW_TOP, doc);
-    const arLeft = findLayerInDoc(ARROW_LEFT, doc);
-    const lblTop = findLayerInDoc(LABEL_TOP, doc);
-    const lblLeft = findLayerInDoc(LABEL_LEFT, doc);
+    const lineTop  = findLayerInDoc(LINE_TOP, doc);
+    const lineLeft = findLayerInDoc(LINE_LEFT, doc);
+    const lblTop   = findLayerInDoc(LABEL_TOP, doc);
+    const lblLeft  = findLayerInDoc(LABEL_LEFT, doc);
+    // Die Pfeile sind optional
+    const arLeft   = findLayerInDoc(ARROW_LEFT,doc,true);
+    const arRight  = findLayerInDoc(ARROW_RIGHT,doc,true);
+    const arUp     = findLayerInDoc(ARROW_UP,doc,true);
+    const arDown   = findLayerInDoc(ARROW_DOWN,doc,true);
+
 
     // Abmessungen der Grafik
     const b0 = gr.bounds;
@@ -70,15 +87,22 @@ function processDoc(doc) {
     const h0 = b0[3] - b0[1];
 
     ////////////////////////////////////////////////
-    // Pfeil oben
-    var b = arTop.bounds;
+    // Linie oben
+    var b = lineTop.bounds;
     var w = b[2] - b[0];
     var h = b[3] - b[1];
     var deltaY =   b0[1]- h0/100*FDELTA - FIX_OFFSET -b[3];
-    // Linke Ecke bündig ausrichten
-    arTop.translate(b0[0] - b[0], deltaY);
-    // In x-Richtung skalieren
-    arTop.resize(w0 / w * 100, 100, AnchorPosition.MIDDLELEFT);
+    // Mitte bündig ausrichten
+    lineTop.translate((b0[0]+b0[2])/2 - (b[0]+b[2])/2 , deltaY);
+    // In x-Richtung skalieren // Ein paar Px abziehen wegen der Pfeile
+    var factor=1;
+    if( arLeft && arRight ){
+        factor = (w0-ARROW_SIZE)/w*100;
+    }else{
+        factor = w0/w*100;
+    }
+    lineTop.resize(factor, 100, AnchorPosition.MIDDLECENTER);
+
     ////////////////////////////////////////////////
     // Schrift oben
     // Auf mittlere Position bringen
@@ -86,16 +110,38 @@ function processDoc(doc) {
     var delta = (b0[0] + b0[2]) / 2 - (b[0] + b[2]) / 2;
     lblTop.translate(delta, deltaY);
 
+    // Pfeil nach links
+    if( arLeft ){
+        b = lineTop.bounds;
+        var b1 = arLeft.bounds;
+        var dx = b0[0]-b1[0];
+        var dy = (b[1]+b[3])/2 - (b1[1]+b1[3])/2;
+        arLeft.translate(dx,dy);
+    }
+    //PFeil nach rechts
+    if( arRight ){
+        b = lineTop.bounds;
+        var b1 = arRight.bounds;
+        var dx = b0[2]-b1[2];
+        var dy = (b[1]+b[3])/2 - (b1[1]+b1[3])/2;
+        arRight.translate(dx,dy);
+    }
+
     ////////////////////////////////////////////////
-    // Pfeil links
-    b = arLeft.bounds;
+    // Linie links
+    b = lineLeft.bounds;
     w = b[2] - b[0];
     h = b[3] - b[1];
     var deltaX=b0[0]-h/100*FDELTA - FIX_OFFSET -b[2]; 
-    // Obere Ecke bündig ausrichten
-    arLeft.translate(deltaX, b0[1] - b[1]);
+    // Mitte bündig ausrichten
+    lineLeft.translate(deltaX, (b0[1]+b0[3])/2 - (b[1]+b[3])/2);
     // In y-Richtung skalieren
-    arLeft.resize(100, h0 / h * 100, AnchorPosition.TOPCENTER);
+    if(arUp && arDown){
+        factor = (h0-ARROW_SIZE)/h*100;
+    }else{
+        factor = h0 / h * 100;
+    }
+    lineLeft.resize(100, factor, AnchorPosition.MIDDLECENTER);
 
     ////////////////////////////////////////////////
     // Schrift links
@@ -103,6 +149,24 @@ function processDoc(doc) {
     b = lblLeft.bounds;
     var delta = (b0[1] + b0[3]) / 2 - (b[1] + b[3]) / 2;
     lblLeft.translate(deltaX, delta);
+
+    // Pfeil nach oben
+    if( arUp ){
+        b = lineLeft.bounds;
+        var b1 = arUp.bounds;
+        var dx = (b[0]+b[2])/2 - (b1[0]+b1[2])/2 
+        var dy = b0[1] - b1[1];    
+        arUp.translate(dx,dy);
+    }
+    //PFeil nach rechts
+    if( arDown ){
+        b = lineLeft.bounds;
+        var b1 = arDown.bounds;
+        var dx = (b[0]+b[2])/2 - (b1[0]+b1[2])/2; ;
+        var dy = b0[3]-b1[3];
+        arDown.translate(dx,dy);
+    }
+
 }
 
 
