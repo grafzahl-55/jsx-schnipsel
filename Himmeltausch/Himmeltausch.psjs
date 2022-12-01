@@ -37,6 +37,7 @@ function selectActionName(){
 
 async function main(){
     const actionName=selectActionName();
+    if(!actionName){ return null; }
     await executeAsModal(async ()=> {
         await playAction(ACTIONSET,actionName);
         // Himmel-Austausch-Gruppe umbenennen und aktivieren
