@@ -32,7 +32,7 @@ In der ersten Phase wird bei allen Eingabebildern der Himmel ausgetauscht (nach 
 
 Dazu dient die Aktion "START-Stapelverarbeitung". Es öffnet sich der Dialog der Stapelverarbeitung
 
-![Screenshot 1](Bildprozessor1.jpg)
+![Screenshot 1](Bildprozessor_1.jpg)
 
 Hier muss man Quell- und Zielverzeichnis angeben. Alle anderen Einstellungen können übernommen werden. Trotzdem wichtig: Ob wirklich die Aktion "Himmeltausch / __Himmel_tauschen_und_speichern" hier angewählt ist.
 
@@ -41,5 +41,5 @@ Die Ergebnisse landen im angegebenen Zielverzeichnis im PSD-Format. An den Datei
 
 Für das (hoffentlich glückliche) Ende gibt es noch die Aktion "START-Jpeg-Ausgabe". Diese benutzt wiedeum die Stapelverarbeitung, um alle PSDs aus dem vorigen Schritt als JPEG abzuspeichern. 
 
-![Screenshot 2](Bildprozessor2.jpg)
+![Screenshot 2](Bildprozessor_2.jpg)
 
