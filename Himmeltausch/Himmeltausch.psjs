@@ -1,0 +1,65 @@
+/**
+ * Wählt zufällig eine Aktion aus dem Aktionssatz "Himmeltausch" aus und spielt sie ab.
+ * Kandidaten sind alle Aktionen, deren Name mit "Himmel" beginnt.
+ */
+
+const ACTIONSET = "Himmeltausch";
+const PREFIX = "Himmel";
+
+const app = require('photoshop').app;
+const batchPlay = require('photoshop').action.batchPlay;
+const executeAsModal = require('photoshop').core.executeAsModal;
+
+
+
+
+async function playAction(actionSet, actionName){
+    await batchPlay(
+        [
+            {
+                "_obj": "play",
+                "_target": [{ "_name": actionName, "_ref": "action" }, { "_name": actionSet, "_ref": "actionSet" }],
+            }
+        ],
+        { "synchronousExecution": true }
+    )
+}
+
+function selectActionName(){
+    const actionSet = app.actionTree.find( actionSet => actionSet.name== ACTIONSET);
+    if(!actionSet) return null;
+    const actions = actionSet.actions.filter(ac=>ac.name.startsWith(PREFIX));
+    if(actions.length==0) return null;
+    const randomIndex=Math.floor(actions.length*Math.random());
+    return actions[randomIndex].name;
+}
+
+
+async function main(){
+    const actionName=selectActionName();
+    await executeAsModal(async ()=> {
+        await playAction(ACTIONSET,actionName);
+        // Himmel-Austausch-Gruppe umbenennen und aktivieren
+        const topGroup = app.activeDocument.layers[0];
+        topGroup.name=actionName;
+        await batchPlay([
+            {
+                _obj: "select",
+                _target: [
+                    {
+                        _ref: "layer",
+                        _id: topGroup.id
+                    }
+                ],
+                makeVisible: false
+            }
+        ], 
+            {"synchronousExecution": true}
+        );
+    });
+    
+}
+
+
+
+await main();
