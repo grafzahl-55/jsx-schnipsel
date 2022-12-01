@@ -9,6 +9,7 @@ Wie kann man automatisiert für eine große Anzahl von Bildern den Himmel austau
 1. Das Aktionspaket Himmeltausch.atn 
 1. Das Skript Himmeltausch.psjs
 
+(Siehe weiter oben: Am besten jeweils ein Rechtsklick auf den Link und dann "Ziel speichern unter...")
 
 ## Vorbereitung:
 
@@ -17,7 +18,7 @@ Aktionspaket in PS installieren und die Skriptdatei irgendwo - wiederfindbar - i
 Das Aktionspaket enthält eine Aktion namens "_ZufallsaktionAbspielen", die muss man modifizieren. Das geht so:
 
 1. Irgendein Beispielbild öffnen
-1. Den Punkt "Javascript ausführen...." löoschen
+1. Den Punkt "Javascript ausführen...." löschen
 1. Die Aufzeichnung starten
 1. Menübefehl aufrufen: Datei -> Skripten -> Durchsuchen...
 1. Die Datei "Himmeltausch.psjs" auswählen
